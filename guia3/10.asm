@@ -1,42 +1,62 @@
-inicio:
-    mov efx,DS;
-    add efx,0;//Indice
+inicio: mov edx, DS ; EDX -> V[0]
+        mov EFX, 0  ; EFX = n = 0
 
-    mov ebx,0;//Contador n
+BUCLE_LECTURA:
+        MOV EAX, 0x01
+        LDU ECX, 0x04
+        LDL ECX, 0x01
+        SYS 0x1
 
-bucle_lectura:
+        MOV EAX, [EDX]
+        CMP EAX, 0
+        JN FIN_LECTURA
 
-    ldh ecx,0x04;
-    ldl ecx,0x01;
-    mov eax, 0x01;
-    sys 0x1;
-    
-    cmp edx,0;
-    jn fin_bucle;
+        add edx, 4  ; V[n++]
+        add EFX, 1  ; n++
+        jmp BUCLE_LECTURA
 
-    add efx,1;
-    mov [efx], edx;
-    add efx, 4;
-    jmp bucle_lectura;
+FIN_LECTURA:
+        mov EBX, 0
 
-fin_bucle:
-    mov eex,1;
-bucle_lectura2:
-    cmp eex,ebx;
-    jz fin_lectura2;
+BUCLE_CMP:
+        CMP EBX, EFX
+        JZ FIN_CMP
+        MOV EDX, DS
+        ADD EDX, 128
+        MOV EAX, 0x01
+        LDH ECX, 0x04
+        LDL ECX, 0x01
+        SYS 0x1
 
-    ldh ecx,0x04;
-    ldl ecx,0x01;
-    mov eax, 0x01;
-    sys 0x1;
-    move eax, 0;
-    bucle_busqueda:
-        
-    fin_busqueda:
+        MOV EAX, [EDX]
 
-    jmp bucle_lectura2
+        MOV EDX, DS
 
-fin_lectura2:
+BUCLE_BUSQUEDA:
+        CMP EAX, [EDX]
+        JZ FIN_BUSQUEDA
 
+        add edx, 4
+        jmp BUCLE_BUSQUEDA
 
+FIN_BUSQUEDA:
+        mov [EDX], -1
+        add EBX, 1
+        jmp BUCLE_CMP
 
+FIN_CMP:
+        MOV EDX, DS
+
+BUCLE_FINAL:
+        CMP [EDX], -1
+        JNZ FIN_FINAL
+        add EDX, 4
+        jmp BUCLE_FINAL
+
+FIN_FINAL:
+        MOV EAX, 0x1
+        LDU ECX, 0x04
+        LDL ECX, 0x01
+        SYS 0x2
+
+        STOP
