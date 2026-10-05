@@ -42,3 +42,56 @@ nodo_nuevo:   push bp
 nodo_fin:     mov  sp, bp
               pop  bp
               ret
+
+
+;Insercion ordenada iterativa
+insert_Sort: push bp
+            mov  bp, sp
+            Push eax
+            Push ebx
+            Push edx
+            MOV  edx, [bp+8]
+            MOV  eax, [bp+12]
+            CMP  eax, null
+            JZ   ins_fin
+
+ins_otro:   MOV  ebx, [edx]
+            CMP  ebx, null
+            Jz   ins_actual
+            CMP  w[ebx+val], w[eax+val]
+            JNN  ins_actual
+            mov  edx, ebx
+            Add  edx, Sig
+            JMP  ins_otro
+
+            MOV  [eax+sig], ebx    ; (1)
+            MOV  [edx], eax        ; (2)
+
+            pop  edx
+            pop  ebx
+            pop  eax
+
+;Version recursiva
+insert_Sort: push bp
+            mov  bp,sp
+            Push eax
+            Push ebx
+            Push edx
+            MOV  edx,[bp+8]
+            MOV  eax,[bp+12]
+            CMP  eax,null
+            JZ   ins_fin
+
+            MOV  ebx,[edx]
+            CMP  ebx,null
+            Jt   ins_actual
+            CMP  w[ebx+val],w[eax+val]
+            JNN  ins_actual
+            mov  edx,ebx
+            Add  edx,Sig
+
+            Push eax
+            Push edx
+            CALL Insert_Sort
+            Add  sp,8
+            Jmp  ins_fin
